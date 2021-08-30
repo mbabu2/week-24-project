@@ -40,11 +40,6 @@ pipeline {
                 sh 'terraform show -no-color tfplan > tfplan.txt'
             }
         }
-        
-        def getTerraformPath(){
-          def tfVpc = tool name: 'terraform', type: 'terraform'
-          return tfVpc
-        }
     
         stage('Approval') {
            when {
