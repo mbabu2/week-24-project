@@ -24,22 +24,13 @@ pipeline {
                     }
                 }
             }
-
-        stage('Plan') {
-            when {
-                not {
-                    equals expected: true, actual: params.destroy
-                }
-            }
-            
-            steps {
-                sh "terraform init"
-                sh 'terraform workspace select ${environment} || terraform workspace new ${environment}'
-
-                sh "terraform plan -input=false -out tfplan"
-                sh 'terraform show -no-color tfplan > tfplan.txt'
-            }
-        }
+         
+         stage ('Terraform Plan') {
+           sh 'terraform init'
+           sh 'terraform plan -no-color -out=create.tfplan'
+         }
+        
+    
         stage('Approval') {
            when {
                not {
