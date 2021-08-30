@@ -1,6 +1,8 @@
 pipeline {
     agent any
-
+     environment {
+     PATH = "${PATH}:${getTerraformPath()}"
+    }
     parameters {
         string(name: 'environment', defaultValue: 'terraform', description: 'Workspace/environment file to use for deployment')
         booleanParam(name: 'autoApprove', defaultValue: false, description: 'Automatically run apply after generating plan?')
@@ -25,11 +27,26 @@ pipeline {
                 }
             }
          
-         stage ('Terraform Plan') {
-           sh 'terraform init'
-           sh 'terraform plan -no-color -out=create.tfplan'
-         }
+        stage('Plan') {
+            when {
+                not {
+                    equals expected: true, actual: params.destroy
+                }
+            }
+            
+            steps {
+                sh "terraform init -input=false"
+                sh 'terraform workspace select ${environment} || terraform workspace new ${environment}'
+
+                sh "terraform plan -input=false -out tfplan"
+                sh 'terraform show -no-color tfplan > tfplan.txt'
+            }
+        }
         
+        def getTerraformPath(){
+          def tfVpc = tool name: 'terraform', type: 'terraform'
+          return tfVpc
+        }
     
         stage('Approval') {
            when {
