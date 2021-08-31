@@ -34,7 +34,7 @@ pipeline {
             
             steps {
                 sh "/usr/local/bin/terraform init -input=false"
-                sh 'terraform workspace select ${environment} || terraform workspace new ${environment}'
+                sh '/usr/local/bin/terraform workspace select ${environment} || /usr/local/bin/terraform workspace new ${environment}'
 
                 sh "/usr/local/bin/terraform plan -input=false -out tfplan"
                 sh '/usr/local/bin/terraform show -no-color tfplan > tfplan.txt'
